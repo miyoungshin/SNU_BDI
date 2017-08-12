@@ -1,0 +1,1 @@
+arr = np.random.random((1,10))

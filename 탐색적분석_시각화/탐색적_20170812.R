@@ -1,10 +1,11 @@
-setwd("C:/Users/User/Documents/GitHub/bigdata")
+setwd("/Users/arnorfati/Documents/GitHub/SNU_BDI/탐색적분석_시각화")
+getwd() # 현재 작업 경로 보여줌
 a <- c(1:10)
 rm(list=ls()) # 워크스페이스의 객체 지우기
 gc() # 메모리 정리
-pdf("xh.pdf") # pdf 그래픽 디바이스 열기 (작업 디렉토리에 xh라는 파일을 만들어 그곳에 그림을 그림)
+pdf("example.pdf") # pdf 그래픽 디바이스 열기 (작업 디렉토리에 xh라는 파일을 만들어 그곳에 그림을 그림)
 #jpg, png, gif 그림을 그려주는 디바이스
-getwd()
+
 hist(rnorm(100))
 dev.off()
 
@@ -47,10 +48,10 @@ u>v
 
 # NA 와 NULL
 
-b <- c(12,NA,32,11,32) # NA는 결측값
-mean(b)
+x <- c(12,NA,32,11,32) # NA는 결측값
+mean(x)
 
-mean(x, na.rm=TRUE )
+mean(x, na.rm=TRUE ) # NA값을 제외하고 평균
 
 x <- NULL # 
 x <- c(x,2)

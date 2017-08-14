@@ -191,6 +191,8 @@ plot3d(wt,disp,mpg,col= a)
 library(rgl)
 z <- 2 * volcano
 x <- 10 *(1:nrow(z))
-y <- 10 *(1:nrow(z))
+y <- 10 *(1:ncol(z))
 par(bg = 'slategray')
-persp(x,y,z,theta = 135,phi = 30,col = 'green3',scale=FALSE,ltheta= -120,shade = 0.75,border = NA, box = FALSE)
+persp(x, y, z, theta = 135, phi = 30, col = 'green3', scale = FALSE, ltheta = -120, shade = 0.75, border = NA, box = FALSE)
+
+persp3d(x, y, z, col = "green3")

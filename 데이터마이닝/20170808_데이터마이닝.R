@@ -7,6 +7,7 @@ library(ISLR)
 # chpter2 Statistical Learning은 스스로 읽어보기
 # 강의 내용과 교재는 거의 유사, 강의 후 교재를 통해 디테일을 복습
 # 회귀분석(단순회귀,중회귀, 교호작용, 모형진단)
+getwd()
 setwd("/Users/arnorfati/Documents/GitHub/SNU_BDI/데이터마이닝")
 adver <- read.csv("Advertising.csv",header=T)
 head(adver)

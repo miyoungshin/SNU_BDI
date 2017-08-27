@@ -1,3 +1,11 @@
+setwd("C:/Users/User/Documents/GitHub/SNU_BDI/탐색적분석_시각화")
+getwd() # 현재 작업 경로 보여줌
+rm(list=ls()) # 워크스페이스의 객체 지우기
+gc() # 메모리 정리
+
+
+
+################################## R 전처리 ##############################
 plot(mpg~disp,data=mtcars)
 fit <- lm(mpg~disp,data=mtcars)
 class(fit) #  lm 클래스라고 뜨는데 이건 s3 클래스

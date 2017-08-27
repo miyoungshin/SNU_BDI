@@ -7,7 +7,7 @@ surveys <- read.csv('surveys.csv')
 class(surveys)
 names(surveys)
 summary(surveys)
-
+str(surveys)
 ### remember ##### 
 
 for (i in 1:10) eval ( parse (text = paste0("fit",i,"<- i")) )
@@ -24,24 +24,27 @@ gc()
 if (!require(dplyr)) { install.packages("dplyr") ; library(dplyr) }
 surveys <- read.csv(file = 'surveys.csv')
 
-# Select colums
+# 데이터 불러오기
+surveys = read.csv('surveys.csv',header = TRUE)
+
+# 특정 열에 해당되는 데이터 값을 불러오기
 match(c("plot_id", "species_id", "weight"),  names(surveys))
+?match
+
 surveys[, match(c("plot_id", "species_id", "weight"),  names(surveys)) ]
 surveys[,c("plot_id", "species_id", "weight") ]
 surveys[c("plot_id", "species_id", "weight") ]
 
-# filter data of which year is 1995
+# 특정 값에 해당되는 데이터 추출
 surveys$year == 1995
 surveys[surveys$year == 1995, ]
 head(surveys[surveys$year == 1995, ])
 
-# select and filter
-surveys[surveys$weight<5, c("species_id", "sex", "weight")]
-head(surveys[surveys$weight<5, c("species_id", "sex", "weight")])
-# check NA
+
 surveys[which(surveys$weight<5), c("species_id", "sex", "weight")]
 head(surveys[which(surveys$weight<5), 
              c("species_id", "sex", "weight")])
+
 
 surveys_sml <- surveys[which(surveys$weight<5), 
                        c("species_id", "sex", "weight")]
@@ -55,6 +58,7 @@ head(surveys_ex)
 
 u <- unique(surveys$sex)
 length(u)
+
 #factor는 숫자
 class(surveys$sex)
 levels(surveys$sex)
@@ -68,9 +72,6 @@ a <- by(data = surveys$weight,INDICES = surveys$sex, FUN = mean, na.rm = TRUE, t
 a
 a <- unclass(a)
 
-class(a)
-
-?mean
 
 # 엄청 많이 씀!!!!!
 # sex별로 weight값을 계산해 줌
@@ -110,9 +111,22 @@ head(tmp)
 ## arrange()
 
 
+# dplyr
+library(dplyr)
 
-surveys
-# %>% 사용
+select(.data=surveys,plot_id,species_id,weight)
+
+# weight가 na인 값 제외 하고 불러오기
+select(.data=surveys,plot_id,species_id,weight) %>% filter(!is.na(weight))
+
+
+# 응용
+surveys %>% filter(!is.na(weight)) %>% filter(!is.na(sex)) %>% filter(weight <5) %>% select(species_id, sex, weight) %>% head()
+
+
+# dplyr를 활용한 통계량 계산
+surveys %>% group_by(sex) %>% summarize(mean_weight= mean(weight, na.rm = TRUE))
+                                        
 select(surveys, plot_id, species_id, weight) %>% head
 
 filter(surveys, year == 1995) %>% head

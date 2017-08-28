@@ -1,14 +1,57 @@
 # 강의록 주소 : http://ranking.uos.ac.kr/bigdata.php
-
-## exercise
 setwd('C:/Users/User/Documents/GitHub/SNU_BDI/탐색적분석_시각화')
 
+
+### R Data processing by index ###
 surveys <- read.csv('surveys.csv')
 class(surveys)
+
+# 데이터의 이름을 확인할 때 사용 
 names(surveys)
+<<<<<<< HEAD:탐색적분석_시각화/탐색적_RdataProcessing.R
 summary(surveys)
 str(surveys)
+=======
+
+# 데이터에 대한 기초통계량 확인
+str(surveys) ## str()은 각각 변수의 타입(int,factor)을 알려줌
+
+summary(surveys) ## summary()에서 int는 평균,4분위수를 알려줌/ factor는 각각의 변수를 알려줌
+
+# indexing 및 Filtering을 이용한 데이터 정리
+match(c('plot_id','species_id','weight'), names(surveys)) #위치를 알려줌
+
+surveys[,match(c('plot_id','species_id','weight'), names(surveys))]
+surveys[,c('plot_id','species_id','weight')]
+surveys[c('plot_id','species_id','weight')]
+
+# 특정 값을 만족하는 데이터만 추출
+surveys$year == 1995 ## T/F 형태로 데이터를 보여줌
+surveys[surveys$year == 1995,]
+head(surveys[surveys$year == 1995,])
+
+## weight가 5미만인 데이터의 speices_id, sex, weight 열을 찾아보기 
+surveys[surveys$weight < 5, c('species_id','sex','weight')] # 안되는 이유는??
+surveys[which(surveys$weight<5),c('species_id','sex','weight')]
+
+### indexing 및 filtering을 이용한 통계량 계산
+
+u <- unique(surveys$sex)
+u
+length(u)
+class(surveys$sex)
+levels(surveys$sex)
+# 성별에 따른 weight값의 평균 계산 (불편함)
+mean(surveys$weight[surveys$sex == u[1]],na.rm=T)
+mean(surveys$weight[surveys$sex == u[2]],na.rm=T)
+mean(surveys$weight[surveys$sex == u[3]],na.rm=T)
+
+aggregate(formula = weight ~ sex, data = surveys, FUN = mean, na.rm= TRUE)
+
+
+>>>>>>> a4ff22fcb8801a3b1e7030ecf1dd732f5c32d507:탐색적분석_시각화/탐색적_20170817.R
 ### remember ##### 
+
 
 for (i in 1:10) eval ( parse (text = paste0("fit",i,"<- i")) )
 ls()
@@ -40,10 +83,19 @@ surveys$year == 1995
 surveys[surveys$year == 1995, ]
 head(surveys[surveys$year == 1995, ])
 
+<<<<<<< HEAD:탐색적분석_시각화/탐색적_RdataProcessing.R
 
 surveys[which(surveys$weight<5), c("species_id", "sex", "weight")]
 head(surveys[which(surveys$weight<5), 
              c("species_id", "sex", "weight")])
+=======
+# select and filter
+surveys[surveys$weight<5, c("species_id", "sex", "weight")]
+head(surveys[surveys$weight<5, c("species_id", "sex", "weight")])
+# check NA
+head(surveys[which(surveys$weight<5), c("species_id", "sex", "weight")])
+head(surveys[which(surveys$weight<5), c("species_id", "sex", "weight")])
+>>>>>>> a4ff22fcb8801a3b1e7030ecf1dd732f5c32d507:탐색적분석_시각화/탐색적_20170817.R
 
 
 surveys_sml <- surveys[which(surveys$weight<5), 

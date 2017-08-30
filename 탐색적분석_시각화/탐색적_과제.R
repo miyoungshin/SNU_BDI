@@ -1,4 +1,4 @@
-# 데이터 불러오기
+# 데이터 불러오기1
 
 setwd('C:/Users/User/Documents/GitHub/SNU_BDI/탐색적분석_시각화')
 setwd('/Users/arnorfati/Documents/GitHub/SNU_BDI/탐색적분석_시각화')

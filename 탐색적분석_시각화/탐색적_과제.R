@@ -4,17 +4,19 @@ setwd('C:/Users/User/Documents/GitHub/SNU_BDI/탐색적분석_시각화')
 setwd('/Users/arnorfati/Documents/GitHub/SNU_BDI/탐색적분석_시각화')
 skilldata = read.csv('SkillCraft1_Dataset.csv',stringsAsFactors = F, na.strings = c('?'))
 colSums(is.na(skilldata))
-install.packages('dplyr')
 library(dplyr)                    
 
-wine_red = read.csv('winequality-red.csv')
-wine_white = read.csv('winequality-white.csv')
+# 전처리
+
 #---------------------------------------------------------------------#
 # skilldata
 summary(skilldata)
 table_League = table(skilldata$LeagueIndex)
 table.name = c('Bronze','Silver','Gold','Platinum','Diamond','Master','GrandMaster','Pro')
-barplot(table_League, main = 'LeagueIndex',names.arg = table.name,col = c('saddle brown','Azure 3','gold3','light cyan','alice blue','light sky blue',' royal blue','midnight blue'))
+bar.a = barplot(table_League,ylim = c(0,1000), main = 'LeagueIndex',names.arg = table.name,col = c('saddle brown','Azure 3','gold2','AQUAMARINE','plum','light sky blue',' royal blue','midnight blue'))
+legend('topright',c('Bronze','Silver','Gold','Platinum','Diamond','Master','GrandMaster','Pro'),col = c('saddle brown','Azure 3','gold2','AQUAMARINE','plum','light sky blue',' royal blue','midnight blue'),pch=15)
+text(bar.a,cex=1.7,table_League+100, labels = paste(round(table_League, 2),"", sep=''))
+mycol = c('saddle brown','Azure 3','gold2','AQUAMARINE','plum','light sky blue',' royal blue','midnight blue')
 mycol = colors()
 plot(1:80, y=rep(1,80), col = mycol[1:80], cex = 2, pch = 20, 
      ylim = c(0,1) )
@@ -25,7 +27,7 @@ library(colorspace)
 pal = choose_palette()
 
 str(skilldata)
-skilldata$LeagueIndex = as.factor(skilldata$LeagueIndex)
+skilldata$LeagueIndex = factor(skilldata$LeagueIndex,ordered = TRUE)
 str
 detach(skilldata)
 attach(skilldata)
@@ -42,144 +44,61 @@ mean(TotalHours,na.rm = T)
 which.max(TotalHours)
 skilldata[1794,5]
 TotalHours
-TotalHours[1794] = 25000
+skilldata$TotalHours[1794] = 25000
 plot(HoursPerWeek)
 24*7
 
 
 #Age
 # 큰 차이는 없음 프로선수 데이터 활용 채워 넣기
-
+pro <- c(21,	25,	21,	23,	26,	23,	26,	25,	23,	24,	25,	22,	22,	22,	25,	25,	23,	23,	24,	21,	25,	23,	22,	23,	24,	22,	20,	23,	23,	20,	23,	21,	25,	22,	25,	25,	25,	23,	20,	24,	25,	22,	25,	24,	17,	22,	22,	20,	27,	27,	24,	25,	27,	28,	19,	27,	19,	24,	27,	25,	21,	23,	23,	20,	24,	22,	23,	21,	20,	25)
+a <- mean(pro)
+b <- sd(pro)
+?rnorm()
+rnorm
+a <- rnorm(55,a,b)
+mean(a)
+a <- as.integer(a)
+skilldata[skilldata$LeagueIndex == 8,]$Age = a
+plot(skilldata$LeagueIndex,boxplot(skilldata$Age))
+boxplot(TotalHours ~ LeagueIndex,data=skilldata_0,names.arg = table.name,col = c('saddle brown','Azure 3','gold2','AQUAMARINE','plum','light sky blue',' royal blue','midnight blue') )
+legend('topright',c('Bronze','Silver','Gold','Platinum','Diamond','Master','GrandMaster','Pro'),col = c('saddle brown','Azure 3','gold2','AQUAMARINE','plum','light sky blue',' royal blue','midnight blue'),pch=15)
+skilldata_0 <- skilldata[-c(2325,1797,771,1979,2217,1794,3254,2217,8,2141,11),]
+dim(skilldata_0)
+dim(skilldata)
 #HourPerWeek
 # 설문을 통한 데이터인듯
 #TotalHour
 # 설문을 통한 데이터인듯
-
+cor(skilldata, na.rm = TRUE)
 #AMP
 hist(APM)
-plot(APM~LeagueIndex)
+plot(density(skilldata$APM),type = 'b',ylim = c(0,0.022))
+hist(skilldata$APM,breaks = 16,probability = TRUE,ylim = c(0,0.022))
+lines(density(skilldata_1$APM), col = mycol[1],lwd = 2)
+lines(density(skilldata_2$APM), col = mycol[2],lwd = 2)
+lines(density(skilldata_3$APM), col = mycol[3],lwd = 2)
+lines(density(skilldata_4$APM), col = mycol[4],lwd = 2)
+lines(density(skilldata_5$APM), col = mycol[5],lwd = 2)
+lines(density(skilldata_6$APM), col = mycol[6],lwd = 2)
+lines(density(skilldata_7$APM), col = mycol[7],lwd = 2)
+lines(density(skilldata_8$APM), col = mycol[8],lwd = 2)
+legend('topright',c('Bronze','Silver','Gold','Platinum','Diamond','Master','GrandMaster','Pro'),col = c('saddle brown','Azure 3','gold2','AQUAMARINE','plum','light sky blue',' royal blue','midnight blue'),pch=15)
+
 str(skilldata$APM)
-skilldata %>%
+a <- skilldata %>%
   group_by(LeagueIndex) %>%
   summarize(mean_APM = mean(APM, na.rm = TRUE))
 
-cor(LeagueIndex,APM)
+cor(skilldata$LeagueIndex,skilldata$APM,method = 'spearman')
 
 
 #SelectByHotkeys
 str(skilldata$SelectByHotkeys)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_SBH = mean(SelectByHotkeys, na.rm = TRUE))
 
-plot(SelectByHotkeys~LeagueIndex)
-cor(LeagueIndex,SelectByHotkeys)
-summary(SelectByHotkeys) # 등급별 평균 확인하기
+write.csv(b,'b.csv')
 
-#AssignToHotkeys
-str(skilldata$AssignToHotkeys)
-
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_ATH = mean(AssignToHotkeys, na.rm = TRUE))
-
-plot(AssignToHotkeys,SelectByHotkeys)
-cor.test(AssignToHotkeys,SelectByHotkeys)
-cor(skilldata)
-
-hist(skilldata$AssignToHotkeys)
-
-#UniqueHotkeys
-str(skilldata$UniqueHotkeys)
-
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_UHK = mean(UniqueHotkeys, na.rm = TRUE))
-summary(skilldata)
-
-#MinimapAttacks
-str(skilldata$MinimapAttacks)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_MA = mean(MinimapAttacks, na.rm = TRUE))
-
-
-#MinimapRightClicks
-str(skilldata$MinimapRightClicks)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_MRA = mean(MinimapRightClicks, na.rm = TRUE))
-
-#NumberOfPACs
-str(skilldata$NumberOfPACs)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_NOP = mean(NumberOfPACs, na.rm = TRUE))
-
-
-#GapBetweenPACs
-str(skilldata$GapBetweenPACs)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_GBP = mean(GapBetweenPACs, na.rm = TRUE))
-
-hist(skilldata_1$GapBetweenPACs,xlim=c(0,200),col = c('saddle brown'))
-hist(skilldata_2$GapBetweenPACs,xlim=c(0,200))
-hist(skilldata_3$GapBetweenPACs,xlim=c(0,200))
-hist(skilldata_4$GapBetweenPACs,xlim=c(0,200))
-hist(skilldata_5$GapBetweenPACs,xlim=c(0,200))
-hist(skilldata_6$GapBetweenPACs,xlim=c(0,200))
-hist(skilldata_6$GapBetweenPACs,xlim=c(0,200))
-hist(skilldata_8$GapBetweenPACs,xlim=c(0,200))
-#ActionLatency
-str(skilldata$ActionLatency)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_AL = mean(ActionLatency, na.rm = TRUE))
-
-#ActionsInPAC
-str(skilldata$ActionsInPAC)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_AIP = mean(ActionsInPAC, na.rm = TRUE))
-
-#TotalMapExplored
-str(skilldata$TotalMapExplored)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_TME = mean(TotalMapExplored, na.rm = TRUE))
-# 프로씬은 맵확인을 많이 하지 않음
-
-#WorkersMade
-str(skilldata$WorkersMade)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_WM = mean(WorkersMade, na.rm = TRUE))
-par(mfrow=c(4,1))
-hist(skilldata_1$WorkersMade,xlim=c(0.0005,0.0025),col = c('saddle brown'))
-hist(skilldata_2$WorkersMade,xlim=c(0.0005,0.0025),col = c('Azure 3'))
-hist(skilldata_3$WorkersMade,xlim=c(0.0005,0.0025),col = c('gold3'))
-hist(skilldata_4$WorkersMade,xlim=c(0.0005,0.0025),col = c('light cyan'))
-hist(skilldata_5$WorkersMade,xlim=c(0.0005,0.0025),col = c('alice blue'))
-hist(skilldata_6$WorkersMade,xlim=c(0.0005,0.0025),col = c('light sky blue'))
-hist(skilldata_6$WorkersMade,xlim=c(0.0005,0.0025),col = c('royal blue'))
-hist(skilldata_8$WorkersMade,xlim=c(0.0005,0.0025),col = c('midnight blue'))
-
-#UniqueUnitsMade
-str(skilldata$UniqueUnitsMade)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_UUM = mean(UniqueUnitsMade, na.rm = TRUE))
-
-#ComplexUnitsMade
-str(skilldata$ComplexUnitsMade)
-skilldata %>%
-  group_by(LeagueIndex) %>%
-  summarize(mean_CUM = mean(ComplexUnitsMade, na.rm = TRUE))
-
-#ComplexAbilitiesUsed
-str(skilldata$UniqueHotkeys)
-skilldata %>%
+b<- skilldata %>%
   group_by(LeagueIndex) %>%
   summarize(mean_GBP = mean(GapBetweenPACs, na.rm = TRUE))
 
@@ -214,3 +133,6 @@ dim(skilldata_7)
 dim(skilldata_8)
 
 hist(skilldata_8$GapBetweenPACs)
+
+install.packages('randomForest')
+library(randomForest)

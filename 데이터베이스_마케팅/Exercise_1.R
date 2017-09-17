@@ -1,4 +1,6 @@
 # 데이터 불러 오기
+install.packages('boot')
+library(boot)
 getwd()
 setwd('C:/Users/User/Documents/GitHub/SNU_BDI/데이터베이스_마케팅')
 RFM <- read.csv('mailorder.csv',header = TRUE)
@@ -96,6 +98,8 @@ mean(result_Q4)
 
 
 # 5. K-means 활용 RFM
+# 2,3번의 RFM은 등급을 나누는데 있어서 적합하지 않음(5는 구간이 세밀해 그룹의 할당 관측치가 적음)
+# 따라서 적당한 등급화를 위해 k-means를 활용함
 library(NbClust)
 RFM <- read.csv('mailorder.csv',header = TRUE)
 RFM.train = RFM[1:2000,]
@@ -162,3 +166,37 @@ dim(RFM_0)
 summary(RFM_1)
 dim(RFM_1)
 
+# 6. Regression 
+# 변수 선택, 발전을 위한 
+
+# lm
+lm.fit1 <- glm(purchase~recency+monetary+frequency,data = RFM.train)
+summary(lm.fit1)
+mean(RFM.vali$purchase-predict(lm.fit1,RFM.vali)^2)
+
+lm.fit2 <- glm(purchase~.,data = RFM.train)
+summary(lm.fit2)
+mean(RFM.vali$purchase-predict(lm.fit2,RFM.vali)^2)
+
+
+# k-fold
+set.seed(10)
+RFM <- read.csv('mailorder.csv',header = TRUE)
+
+RFM.train = RFM[1:2000,]
+RFM.vali = RFM[2001:4000,]
+
+lm.fit3 <- glm(purchase~recency+monetary+frequency,data = RFM.train)
+ev.err <- cv.glm(RFM.vali,lm.fit3,K=20)$delta[1]
+ev.err
+
+
+# 전체 변수 선택 고려
+install.packages('leaps')
+library(leaps)
+regfit.full <- regsubsets(purchase~.,RFM.vali)
+summary(regfit.full)
+reg.summary = summary(regfit.full)
+
+names(reg.summary)
+reg.summary$rsq

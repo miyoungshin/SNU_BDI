@@ -3,6 +3,7 @@ library(ggplot2)
 library(dplyr)
 library(reshape2)
 library(corrplot)
+library(tree)
 library(rpart)
 library(rpart.plot)
 library(randomForest)
@@ -21,7 +22,7 @@ colSums(is.na(data_set))
 data_0 <- data_set[data_set$TARGET==0,]
 data_1 <- data_set[data_set$TARGET==1,]
 
-# ① Data Pre-processing---------------------------------------------
+# ① Data Pre-processing [1.기본]---------------------------------------------
 
 # [6] TOT_LNIF_AMT : 단위 수정
 TOT_LNIF_AMT <- data_set[,6]*1000
@@ -148,8 +149,54 @@ data_set[data_set[,67] == 'S' ,67] = 0
 data_set[,67] <- as.numeric(data_set[,67])
 table(data_set[,67])
 
-# ① Data Pre-processing 1. EDA---------------------------------------------
+# ① Data Pre-processing [2.log 변환] ---------------------------------------------
+# [6] TOT_LNIF_AMT : log 변환
+data_set <- transform(data_set, TOT_LNIF_AMT_log = log(TOT_LNIF_AMT + 1))
 
+# [7] TOT_CLIF_AMT : log 변환
+data_set <- transform(data_set, TOT_CLIF_AMT_log = log(TOT_CLIF_AMT + 1))
+
+# [8] BNK_LNIF_AMT : log 변환
+data_set <- transform(data_set, BNK_LNIF_AMT_log = log(BNK_LNIF_AMT + 1))
+
+# [9] CPT_LNIF_AMT : log 변환
+data_set <- transform(data_set, CPT_LNIF_AMT_log = log(CPT_LNIF_AMT + 1))
+
+# [15] CB_GUIF_AMT : log 변환
+data_set <- transform(data_set, CB_GUIF_AMT_log = log(CB_GUIF_AMT + 1))
+
+# [26] TOT_CRLN_AMT : log 변환
+data_set <- transform(data_set, TOT_CRLN_AMT_log = log(TOT_CRLN_AMT + 1))
+
+# [27] TOT_REPY_AMT : log 변환
+data_set <- transform(data_set, TOT_REPY_AMT_log = log(TOT_REPY_AMT + 1))
+
+# [36] STLN_REMN_AMT
+data_set <- transform(data_set, STLN_REMN_AMT_log = log(STLN_REMN_AMT + 1))
+
+# [37] LT1Y_STLN_AMT : log 변환
+data_set <- transform(data_set, LT1Y_STLN_AMT_log = log(LT1Y_STLN_AMT +1))
+
+# [39] GDINS_MON_PREM
+data_set <- transform(data_set, GDINS_MON_PREM_log = log(GDINS_MON_PREM +1))
+
+# [40] SVINS_MON_PREM : log 변환
+data_set <- transform(data_set, SVINS_MON_PREM_log = log(SVINS_MON_PREM +1))
+
+# [41] FMLY_GDINS_MNPREM : log 변환
+data_set <- transform(data_set, FMLY_GDINS_MNPREM_log = log(FMLY_GDINS_MNPREM +1))
+
+# [42] FMLY_SVINS_MNPREM : log 변환
+data_set <- transform(data_set, FMLY_SVINS_MNPREM_log = log(FMLY_SVINS_MNPREM +1))
+
+# [43] MAX_MON_PREM : log 변환
+data_set <- transform(data_set, MAX_MON_PREM_log = log(MAX_MON_PREM +1))
+
+# [44] TOT_PREM : log 변환
+data_set <- transform(data_set, TOT_PREM_log = log(TOT_PREM +1))
+
+# [45] FMLY_TOT_PREM : log 변환
+data_set <- transform(data_set, FMLY_TOT_PREM_log = log(FMLY_TOT_PREM +1))
 
 # AGE_1 탐색적 분석
 aggregate(formula = data_set[,1] ~AGE_1,data = data_set,FUN = mean) # 대출 연체 여부
@@ -160,49 +207,91 @@ aggregate(formula = data_set[,17] ~AGE_1,data = data_set,FUN = mean) # 추정소
 
 aggregate(formula = data_set[,44] ~AGE_1,data = data_set,FUN = mean) # 기납입 보험료
 
-# 이외의 SCI 도메인과의 관계
-for (i in 2:15) {
-  a <- aggregate(formula = data_set[,i] ~AGE_1,data = data_set,FUN = mean)
-  print(a)
-} 
 
 
 
 
+#--------------------------------------------------------------------------------------
 
-# 멤버쉽 등급 전처리 (미완료)
+
+# 멤버쉽 등급 전처리 (완료 -> 확인 필ㅇ)
 str(data_set$TEL_MBSP_GRAD)
+data_set$TEL_MBSP_GRAD <- as.factor(data_set$TEL_MBSP_GRAD)
 data_MBSP_NA <- data_set[is.na(data_set$TEL_MBSP_GRAD),] # NA값 분류
 data_MBSP <- data_set[!is.na(data_set$TEL_MBSP_GRAD),]
 
-aggregate(formula = MON_TLFE_AMT ~TEL_MBSP_GRAD,data = data_set,FUN = mean) # 평균 비교
-aggregate(formula = ARPU ~ TEL_MBSP_GRAD, data = data_set,FUN = mean)
-
-
-# 각 등급 summary
-E <- summary(data_MBSP[data_MBSP$TEL_MBSP_GRAD == 'E',54:65]) # VIP, E
-R <- summary(data_MBSP[data_MBSP$TEL_MBSP_GRAD == 'R',54:65]) #GOLD, R
-W <- summary(data_MBSP[data_MBSP$TEL_MBSP_GRAD == 'W',54:65]) #SLIVER, W
-Q <- summary(data_MBSP[data_MBSP$TEL_MBSP_GRAD == 'Q',54:65]) #일반, Q
-par(mfrow = c(1,1))
-hist(data_MBSP[data_MBSP$TEL_MBSP_GRAD == 'E',57])
-hist(data_MBSP[data_MBSP$TEL_MBSP_GRAD == 'R',57])
-hist(data_MBSP[data_MBSP$TEL_MBSP_GRAD == 'W',57])
-hist(data_MBSP[data_MBSP$TEL_MBSP_GRAD == 'Q',57])
-
 
 # 의사결정 나무로 확인
-data_MBSP_rpart<- data_MBSP[,c(56,57,58,59,60,61,62,63,64,65,67,68)]
-summary(data_MBSP_rpart)
+set.seed(1)
+
+data_MBSP_rpart<- data_MBSP[,c(17,54,55,56,57,58,59,60,61,62,63,64,65,67,68)]
+data_MBSP_rpart$TEL_MBSP_GRAD = as.factor(data_MBSP_rpart$TEL_MBSP_GRAD)
+train = sample(1:nrow(data_MBSP_rpart),27109)
+test = !train
+
+data_MBSP_rpart.test = data_MBSP_rpart[-train,]
+
+TEL_MBSP_GRAD.test = data_MBSP_rpart$TEL_MBSP_GRAD[-train] 
+
+
+
+tree.MBSP = tree(TEL_MBSP_GRAD~.,data_MBSP_rpart)
 str(data_MBSP_rpart)
-data_MBSP_rpart[,-1] <- as.numeric(data_MBSP_rpart[,-1])
-decision_tree<- rpart(TEL_MBSP_GRAD ~.,
-                      data = data_MBSP_rpart,method = "class")
-rpart.plot(decision_tree,type=2)
+plot(tree.MBSP)
+text(tree.MBSP,pretty = 0)
 
-summary(data_MBSP_rpart)
+dim(data_MBSP_rpart)
+
+
+
+tree.MBSP = tree(TEL_MBSP_GRAD~.,data_MBSP_rpart,subset = train)
+
+tree.pred = predict(tree.MBSP,data_MBSP_rpart.test,type='class')
+a <- table(tree.pred,TEL_MBSP_GRAD.test)
+(a[1,1] + a[2,2] + a[3,3] +a[4,4])/sum(a) # tree로 했을 떄 예측률
+
+set.seed(1)
+cv.MBSP = cv.tree(tree.MBSP,FUN=prune.misclass)
+names(cv.MBSP)
+
+par(mfrow = c(1,2))
+plot(cv.MBSP$size, cv.MBSP$dev,type = 'b')
+plot(cv.MBSP$k, cv.MBSP$dev,type = 'b')
+
+prune.MBSP = prune.misclass(tree.MBSP,best=11)
+plot(prune.carseats)
+text(prune.carseats,pretty = 0)
+
+tree.pred = predict(prune.MBSP,data_MBSP_rpart.test,type='class')
+a <- table(tree.pred,TEL_MBSP_GRAD.test)
+(a[1,1] + a[2,2] + a[3,3] +a[4,4])/sum(a)
+
+
+# 랜덤 포레스트로 분류 71% 정도 성능
 randomF<-randomForest(TEL_MBSP_GRAD ~.,
-                      data = data_MBSP_rpart)
+                      data = data_MBSP_rpart,
+                      subset = train, mtry = 4, importance = TRUE)
+
+randomF.pred = predict(randomF,data_MBSP_rpart.test,type = 'class')
+a <- table(randomF.pred,TEL_MBSP_GRAD.test)
+(a[1,1] + a[2,2] + a[3,3] +a[4,4])/sum(a)
 
 
-randomForest(Species ~., data= iris)
+randomF.pred_NA = predict(randomF,data_MBSP_NA,type = 'class')
+data_set[is.na(data_set$TEL_MBSP_GRAD),56] =  randomF.pred_NA
+
+# 평가 방법 참조
+
+evalution <- function(model, test_file, result_vec){
+  pred <- predict(model, test_file)
+  pred <- factor(pred, levels = c("Y", "N"))
+  result_vec <- factor(result_vec, levels = c("Y", "N"))
+  confusion <- confusionMatrix(pred, result_vec)
+  
+  # F-Score: 2 * precision(Pos Pred Value) * recall(Sensitivity) /(precision + recall):
+  f1_score <- (2 * confusion$byClass[3] * confusion$byClass[1]) / (confusion$byClass[3] + confusion$byClass[1])
+  names(f1_score) <- "F1 Score"
+  
+  print(confusion)
+  print(f1_score)
+}

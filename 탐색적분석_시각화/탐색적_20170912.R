@@ -1,10 +1,11 @@
 # NAVER API
 Sys.setlocale("LC_ALL", "Korean")
-library(httr)
-library(rvest)
 rm(list = ls())
 library(httr)
 library(rvest)
+library(dplyr)
+library(pspline)
+
 Sys.setlocale("LC_ALL", "Korean")
 client_id = 'aaoFMXW56HWyxt1gsLqj';
 client_secret = 'bbx6GpYpRw';
@@ -12,18 +13,24 @@ client_secret = 'bbx6GpYpRw';
 # add header? (add information of id and password)
 header = httr::add_headers('X-Naver-Client-Id' = client_id,
                            'X-Naver-Client-Secret' = client_secret)
+
+# 허니버터칩을 UTF-8 코드로 변환
 query.n =  query = '허니버터칩'
 # convert encoding 
 query = iconv(query, to = 'UTF-8', toRaw = T)
 query = paste0('%', paste(unlist(query), collapse = '%'))
 query = toupper(query)
+
 # make URL
 end_num = 1000
 display_num = 100
 start_point = seq(1,end_num,display_num)
 i = 1
 url = paste0('https://openapi.naver.com/v1/search/blog.xml?query=',query,'&display=',display_num,'&start=',start_point[i],'&sort=sim')
+url = paste0('https://openapi.naver.com/v1/search/webkr.xml?query=%ED%97%88%EB%8B%88%EB%B2%84%ED%84%B0%EC%B9%A9&display=100&start=1001&sort=sim')
+url = paste0('https://openapi.naver.com/v1/search/webkr.xml?query=%ED%97%88%EB%8B%88%EB%B2%84%ED%84%B0%EC%B9%A9&display=100&start=1000&sort=sim')
 url_body = read_xml(GET(url, header))
+
 
 title = url_body %>% xml_nodes('item title') %>%
   xml_text()
@@ -37,12 +44,17 @@ description = url_body %>% xml_nodes('item description') %>%
   html_text()
 
 
-# loop code
+# 불러 올 데이터 확보
+
 final_dat = NULL
+end_num = 1000
+display_num = 100
+start_point = c(seq(1,end_num,display_num),1000)
+url = paste0('https://openapi.naver.com/v1/search/webkr.xml?query=',query,'&display=',display_num,'&start=',start_point[i],'&sort=sim')
 for(i in 1:length(start_point))
 {
   # request xml format
-  url = paste0('https://openapi.naver.com/v1/search/blog.xml?query=',query,'&display=',display_num,'&start=',start_point[i],'&sort=sim')
+  url = paste0('https://openapi.naver.com/v1/search/webkr.xml?query=',query,'&display=',display_num,'&start=',start_point[i],'&sort=sim')
   #option header
   url_body = read_xml(GET(url, header), encoding = "UTF-8")
   title = url_body %>% xml_nodes('item title') %>% xml_text()
@@ -56,16 +68,22 @@ for(i in 1:length(start_point))
 }
 final_dat = data.frame(final_dat, stringsAsFactors = F)
 
-library(dplyr)
-
+# 데이터 타입 확인
+str(final_dat)
+dim(final_dat)
+final_dat[1000,]
+final_dat[1001,]
+# 블로그 명 확인
 tb <- table(final_dat[,2])
-top.blogger<- sort(tb, decreasing = T)[1:4]
+top.blogger<- sort(tb, decreasing = T)[1:4] # 상위 4명의 블로그 확인
+
+final_dat[final_dat[,2]== '로즈마리세상',5]
 tmp <- final_dat %>% select(bloggername, link) %>%
   filter(bloggername %in% names(top.blogger) )
 
 tb <- table(final_dat$postdate)
 head(tb)
-
+table(tb)
 names(tb) %>%head() # 문자열로 데이터 정리
 x <- as.Date(names(tb), format = '%Y%m%d')
 y <- as.numeric(tb) # 검색량
@@ -75,7 +93,7 @@ y <- as.numeric(tb) # 검색량
 plot(x,y,pch = 19,cex = 0.5)
 
 
-library(pspline)
+
 fit <- sm.spline(x = as.integer(x),y= y,cv=TRUE) #smooth spline 
 lines(x =x , y = fit$ysmth, lty = 2, lwd = 2, col = 'blue')
 as.Date('2017-09-12') - as.Date('1990-05-11')

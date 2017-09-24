@@ -1,47 +1,31 @@
-# 데이터 불러오기
-
+# 데이터& library 불러오기
 setwd('C:/Users/User/Documents/GitHub/SNU_BDI/탐색적분석_시각화')
-skilldata = read.csv('SkillCraft1_Dataset.csv')
-wine_red = read.csv('winequality-red.csv')
+setwd('/Users/arnorfati/Documents/GitHub/SNU_BDI/탐색적분석_시각화')
+
 wine_white = read.csv('winequality-white.csv',header = TRUE, sep = ';')
 
-install.packages('dplyr')
-library(dplyr)
+library(dplyr)                    
+library(colorspace)
 
+# 데이터 파악
 summary(wine_white)
-wine_white$quality <- as.integer(wine_white$quality)
-cor(wine_white$volatile.acidity,wine_white$quality,method = 'spearman')
-cor(wine_white$volatile.acidity,wine_white$quality)
+dim(wine_white)
 
+attach(wine_white)
 str(wine_white)
 str(quality)
-wine_red$quality = quality
-str(wine_red$quality)
-cor(wine_red)
-library(colorspace)
-pal = choose_palette()
-pal1 = c("#006D7E","#009E8F", "#00C994", "#28E88E", "#9DFC80", "#DDFF71", "#FFFE6D")
-mycol = pal(7)
-mycol
-cor
-summary(wine_red)
-str(wine_red)
-
-wine_white$quality = as.factor(wine_white$quality)
-str(wine_white)
-dim(wine_red)
-cor(wine_red[,-12])
-par(mfrow=c(1,1))
+cor(wine_white[,-12])
 pairs(wine_white)
-legend('topright',c('3등급','4등급','5등급','6등급','7등급','8등급','9등급'),col = mycol[7:1],pch=15)
-table.white = table(wine_white$quality)
+
+# quality 변수 시각화
+par(mfrow=c(1,1))
+pal1 = c("#006D7E","#009E8F", "#00C994", "#28E88E", "#9DFC80", "#DDFF71", "#FFFE6D")
 table.white = table(wine_white$quality)
 bar.wine.white = barplot(table.white, ylim = c(0,2500), col = mycol[7:1])
 text(bar.wine.white,cex=1.7,table.white+150, labels = paste(round(table.white, 2),"", sep=''))
-legend()
-barplot(table.white)
-?barplot
-# wine_ red
+legend('topright',c('3등급','4등급','5등급','6등급','7등급','8등급','9등급'),col = mycol[7:1],pch=15)
+
+# wine_white quality 별 관측치 분할
 dim(wine_white)
 wine_white_3 = wine_white[wine_white$quality == 3,]
 wine_white_4 = wine_white[wine_white$quality == 4,]
@@ -50,18 +34,12 @@ wine_white_6 = wine_white[wine_white$quality == 6,]
 wine_white_7 = wine_white[wine_white$quality == 7,]
 wine_white_8 = wine_white[wine_white$quality == 8,]
 wine_white_9 = wine_white[wine_white$quality == 9,]
-## 레드와인의 특성을 등급별 비교
-summary(wine_white)
-# fixed acidity 뚜렷한 특성이 없음 
+
+# fixed acidity
 wine_white %>%
   group_by(quality) %>%
   summarize(mean = mean(fixed.acidity))
-par(mfrow=c(1,1))
 
-summary(wine_white$fixed.acidity)
-
-summary(wine_white_9$fixed.acidity)
-mycol
 par(mfrow=c(4,1))
 
 hist(wine_white_3$fixed.acidity,xlim = c(3.5,12),probability = TRUE,main = '3-Quality fixed.acidity',col = mycol[7])

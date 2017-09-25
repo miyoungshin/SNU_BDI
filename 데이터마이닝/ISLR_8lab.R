@@ -53,4 +53,5 @@ table(tree.pred,High.test)
 
 # 8.3.3 Bagging & Random Forest
 set.seed(2)
-bag.boston = randomForest(medv~.,data=Boston,subset = train,)
+bag.boston = randomForest(medv~.,data=Boston,subset = train,mtry = 13,importance = TRUE)
+bag.boston

@@ -215,6 +215,3 @@ par(family="Apple SD Gothic Neo")
 
 graph1<-qgraph(cor.mat, graph="pcor", labels=rownames(cor.mat),layout="spring", sampleSize = nrow(cor.mat),
                vsize=7, cut=0, maximum=.45, border.width=1.5)
-
-plot(graph1)
-

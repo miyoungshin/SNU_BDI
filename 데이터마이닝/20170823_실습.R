@@ -32,6 +32,9 @@ x5 = 1*4.0
 y <- 50+20*x1+0.07*x2+35*x3+0.01*x4+(-10)*x5
 
 
+library(MASS)
+data(mpg)
+
 library(ISLR)
 attach(Smarket)
 str(Smarket)
